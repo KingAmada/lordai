@@ -27,7 +27,7 @@ async function callWhisperAPI(audioData) {
             method: 'POST',
             headers: {
                 'Content-Type': 'audio/mp4', // Set the appropriate content type for your audio file
-                'Authorization': `Bearer ${process.env.WHISPER_API_KEY}` // Use your Whisper API key from environment variables
+                'Authorization': `Bearer ${process.env.WHISPER}` // Use your Whisper API key from environment variables
             },
             body: audioData // Audio data blob
         });
