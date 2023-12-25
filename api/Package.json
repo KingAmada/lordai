@@ -1,0 +1,14 @@
+{
+  "name": "Whisper",
+  "version": "1.0.0",
+  "description": "A Node.js project integrating OpenAI's Whisper API",
+  "main": "transcribe.js",
+  "scripts": {
+    "start": "node transcribe.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  },
+  "author": "Your Name",
+  "license": "ISC"
+}
