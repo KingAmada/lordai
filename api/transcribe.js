@@ -1,3 +1,4 @@
+
 // pages/api/transcribe.js
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
     }
 }
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 async function callWhisperAPI(audioData) {
     try {
