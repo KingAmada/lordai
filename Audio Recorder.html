@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Recorder</title>
+    <!-- Add additional head elements as needed -->
+</head>
+<body>
+    <h2>Record your message</h2>
+    <button id="startRecord">Start Recording</button>
+    <button id="stopRecord">Stop Recording</button>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById('startRecord').addEventListener('click', () => {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener('dataavailable', event => {
+                        audioChunks.push(event.data);
+                    });
+                })
+                .catch(err => console.error('Error accessing media devices:', err));
+        });
+
+        document.getElementById('stopRecord').addEventListener('click', () => {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+
+                mediaRecorder.addEventListener('stop', () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
+                    sendAudioToServer(audioBlob);
+                });
+            }
+        });
+
+        function sendAudioToServer(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+
+            fetch('https://your-vercel-deployment-url/api/transcribe', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Transcription:', data.text);
+                // Additional handling or sending data back to the parent page
+            })
+            .catch(error => console.error('Error sending audio:', error));
+        }
+    </script>
+</body>
+</html>
