@@ -42,3 +42,17 @@ async function callWhisperAPI(audioData) {
         throw error; // Rethrow the error for handling upstream
     }
 }
+fetch('https://lordai.vercel.app/api/transcribe', {
+    method: 'POST',
+    body: formData
+})
+.then(response => {
+    console.log("Raw response:", response); // Log the raw response
+    return response.json();
+})
+.then(data => {
+    // Rest of your code
+})
+.catch(error => {
+    console.error('Error sending audio:', error);
+});
