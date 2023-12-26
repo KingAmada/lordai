@@ -25,8 +25,8 @@ async function callWhisperAPI(audioBlob) {
     try {
         const url = 'https://api.openai.com/v1/audio/transcriptions';
         const formData = new FormData();
-
-        formData.append('file', audioBlob, "audio.mp4");
+const audioFile = new File([audioBlob], "audio.mp4", { type: "audio/mp4" });
+formData.append('file', audioFile);
         formData.append('model', 'whisper-1');
 
         const response = await fetch(url, {
