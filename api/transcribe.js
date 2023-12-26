@@ -22,7 +22,7 @@ import fetch from 'node-fetch';
 
 async function callWhisperAPI(audioData) {
     try {
-        const url = 'https://api.openai.com/v1/whisper'; // Replace with the actual Whisper API endpoint
+        const url = 'https://api.openai.com/v1/audio/transcriptions'; // Replace with the actual Whisper API endpoint
         const response = await fetch(url, {
             method: 'POST',
             headers: {
