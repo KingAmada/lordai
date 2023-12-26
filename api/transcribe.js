@@ -37,7 +37,7 @@ async function callWhisperAPI(audioData) {
         }
 
         const data = await response.json();
-        return data.text; // Assuming the response contains a 'text' field with the transcribed text
+        return data.text; // Assuming the response contains a 'text' field with the transcribed text 
     } catch (error) {
         console.error('Error calling Whisper API:', error);
         throw error; // Rethrow the error for handling upstream
