@@ -22,24 +22,28 @@ import fetch from 'node-fetch';
 
 async function callWhisperAPI(audioData) {
     try {
-        const url = 'https://api.openai.com/v1/audio/transcriptions'; // Replace with the actual Whisper API endpoint
+        const url = 'https://api.openai.com/v1/audio/transcriptions'; // Ensure this is correct
+        console.log('Sending request to Whisper API'); // Additional logging
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'audio/mp4', // Set the appropriate content type for your audio file
-                'Authorization': `Bearer ${process.env.WHISPER}` // Use your Whisper API key from environment variables
+                'Content-Type': 'audio/mp4', // Adjust based on your audio file's format
+                'Authorization': `Bearer ${process.env.WHISPER}` // Ensure API key is correct
             },
-            body: audioData // Audio data blob
+            body: audioData
         });
 
         if (!response.ok) {
+            console.error(`Response from Whisper API: ${response.status} ${response.statusText}`);
             throw new Error(`Error from Whisper API: ${response.statusText}`);
         }
 
         const data = await response.json();
-        return data.text; // Assuming the response contains a 'text' field with the transcribed text 
+        return data.text;
     } catch (error) {
         console.error('Error calling Whisper API:', error);
-        throw error; // Rethrow the error for handling upstream
+        throw error;
     }
 }
+
