@@ -1,35 +1,41 @@
-import fetch from 'node-fetch';
+import multer from 'multer';
 import FormData from 'form-data';
+import fetch from 'node-fetch';
 
-async function callWhisperAPI(audioBlob) {
-    try {
-        const url = 'https://api.openai.com/v1/audio/transcriptions';
-        const formData = new FormData();
+// Multer configuration
+const upload = multer({ storage: multer.memoryStorage() });
 
-        // Append the audio data as a blob
-        formData.append('file', audioBlob, "audio.mp4");
-        formData.append('model', 'whisper-1');
+export default upload.single('audio'), async function handler(req, res) {
+    if (req.method === 'POST') {
+        try {
+            const formData = new FormData();
+            formData.append('file', req.file.buffer, req.file.originalname);
+            formData.append('model', 'whisper-1');
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.WHISPER}`
-                // FormData will set the Content-Type to 'multipart/form-data'
-            },
-            body: formData
-        });
+            const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.WHISPER}`,
+                    // Content-Type is set automatically by FormData
+                },
+                body: formData
+            });
 
-        if (!response.ok) {
-            throw new Error(`Error from Whisper API: ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Error from Whisper API: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            res.status(200).json({ text: data.text });
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).send('Internal Server Error');
         }
-
-        const data = await response.json();
-        return data.text;
-    } catch (error) {
-        console.error('Error calling Whisper API:', error);
-        throw error;
+    } else {
+        res.status(405).send('Method Not Allowed');
     }
-}
+};
+
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
