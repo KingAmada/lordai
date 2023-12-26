@@ -19,31 +19,35 @@ export default async function handler(req, res) {
 }
 
 import fetch from 'node-fetch';
+import FormData from 'form-data';
 
-async function callWhisperAPI(audioData) {
+async function callWhisperAPI(audioFilePath) {
     try {
-        const url = 'https://api.openai.com/v1/audio/transcriptions'; // Ensure this is correct
-        console.log('Sending request to Whisper API'); // Additional logging
+        const url = 'https://api.openai.com/v1/audio/transcriptions';
+        const formData = new FormData();
+
+        formData.append('file', fs.createReadStream(audioFilePath));
+        formData.append('model', 'whisper-1');
 
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'audio/mp4', // Adjust based on your audio file's format
-                'Authorization': `Bearer ${process.env.WHISPER}` // Ensure API key is correct
+                'Authorization': `Bearer ${process.env.WHISPER}`,
+                // 'Content-Type': 'multipart/form-data' is set automatically by FormData
             },
-            body: audioData
+            body: formData
         });
 
         if (!response.ok) {
-            console.error(`Response from Whisper API: ${response.status} ${response.statusText}`);
             throw new Error(`Error from Whisper API: ${response.statusText}`);
         }
 
         const data = await response.json();
-        return data.text;
+        return data.text; // Or adjust based on the actual structure of the response
     } catch (error) {
         console.error('Error calling Whisper API:', error);
         throw error;
     }
 }
+
 
