@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Voice Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #status {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Voice Chat</h1>
+        <button id="startButton" class="button">Start Call</button>
+        <button id="endButton" class="button">End Call</button>
+        <div id="status">Ready</div>
+        <audio id="responseAudio" controls hidden></audio>
+    </div>
+
+    <script>document.addEventListener('DOMContentLoaded', function () {
+    const startButton = document.getElementById('startButton');
+    const endButton = document.getElementById('endButton');
+    const statusDiv = document.getElementById('status');
+    const responseAudio = document.getElementById('responseAudio');
+    let mediaRecorder;
+    let audioChunks = [];
+
+    startButton.addEventListener('click', function() {
+        // Update UI
+        statusDiv.textContent = 'Listening...';
+        startButton.disabled = true;
+        endButton.disabled = false;
+
+        // Start recording
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+
+                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener('stop', () => {
+                    const audioBlob = new Blob(audioChunks);
+                    sendAudioToServer(audioBlob);
+                    audioChunks = [];
+                });
+            })
+            .catch(err => {
+                console.error('Error accessing media devices:', err);
+                // Update UI
+                statusDiv.textContent = 'Error';
+            });
+    });
+
+    endButton.addEventListener('click', function() {
+        // Stop recording
+        mediaRecorder.stop();
+
+        // Update UI
+        statusDiv.textContent = 'Processing...';
+        startButton.disabled = false;
+        endButton.disabled = true;
+    });
+
+    function sendAudioToServer(audioBlob) {
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+
+        // Replace with your server URL
+        fetch('YOUR_SERVER_ENDPOINT', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the response data
+            playResponse(data.audioResponseUrl);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Update UI
+            statusDiv.textContent = 'Error in response';
+        });
+    }
+
+    function playResponse(audioUrl) {
+        responseAudio.src = audioUrl;
+        responseAudio.play();
+        statusDiv.textContent = 'Ready';
+    }
+});
+</script>
+</body>
+</html>
